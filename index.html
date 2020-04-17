@@ -1,1 +1,148 @@
-Cool
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<title>Home Church</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.1.3/css/bootstrap.css">
+	<link rel="stylesheet" href="https://cdn.datatables.net/1.10.20/css/dataTables.bootstrap4.min.css">
+	<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"></script>
+	<script type="text/javascript" src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"></script>	
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+	<script>
+	$(document).ready(function() 
+	{
+		var songList = $('#example').DataTable({
+			"fnDrawCallback": function ( oSettings ) 
+			{
+				//$(oSettings.nTHead).hide();
+				$(oSettings.nTFoot).hide();
+			}
+		});
+		
+		$.getJSON("./songs.json", function(result)
+		{
+			for (i = 0; i < result.length; i++)
+			{
+				var t = result[i].title;
+				t = t.replace(/-/g, ' ');
+				t = titleCase(t);
+				t = "<a data-toggle='modal' data-target='#slide' onclick=showSlide('" + result[i].title + "') class='showSlide' href='#!'>" + t.slice(0, -4) + "</a>";
+				songList.row.add([t]).draw(false);
+			}			
+		});		
+		
+		
+		$( ".close" ).click(function() {
+			$('.audio').each(function(){
+				this.pause(); // Stop playing
+				this.currentTime = 0; // Reset time
+			}); 
+			$('.video').each(function(){
+				this.pause(); // Stop playing
+				this.currentTime = 0; // Reset time
+			}); 
+		});
+		
+	} );
+	
+	function showSlide(s)
+	{		
+		var title = s;
+		var type = title.substr(-4);
+		title = title.replace(/-/g, ' ');
+		title = titleCase(title);		
+		title = title.slice(0, -4)
+		console.log(type)
+		
+		$(".modal-title").text(title);		
+		
+		switch (type)
+		{
+		case ".mp3":
+			$(".song").attr("src", "slides/" + s.slice(0, -4) + ".png");
+			$(".audio").show();
+			$(".song").show();
+			$(".video").hide();
+			$(".audio").attr("src", "./songs/" + s);
+			$(".audio")[0].play();			
+			break;
+		case ".mkv":
+		case ".mp4":
+		case ".webm":
+		case ".m4v":
+			$(".audio").hide();
+			$(".song").hide();
+			$(".video").show();
+			$(".video").attr("src", "./songs/" + s);
+			$(".video")[0].play();
+			break;
+		}
+	}
+	
+	function titleCase(str) 
+	{
+		var splitStr = str.toLowerCase().split(' ');
+		for (var i = 0; i < splitStr.length; i++) {
+		   // You do not need to check if i is larger than splitStr length, as your for does that for you
+		   // Assign it back to the array
+		   splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);     
+		}
+		// Directly return the joined string
+		return splitStr.join(' '); 
+	}
+	</script>
+</head>
+
+<body class="py-4">
+
+<div class="container">
+
+	<!--<div class="row"><div class="col"><h5 class="py-3">Praise & Worship</h5></div></div>-->
+	
+	<div class="row">
+		
+		<div class="col">
+			<table id="example" class="table table-bordered" style="width:100%">
+				<thead>
+					<tr><th>Song</th></tr>
+				</thead>
+				<tbody>
+				</tbody>
+				<tfoot>
+					<tr><th>Song</th></tr>
+				</tfoot>
+			</table>
+			
+		</div>
+	
+		
+	</div>
+
+	<div class="modal fade" id="slide" tabindex="-1" role="dialog" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Title</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+				</div>
+				<div class="modal-body">
+					<img class="song" style="width: 100%">
+					<audio class="audio" width="100%" controls autoplay></audio>
+					<video class="video" width="100%" controls autoplay></video>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<footer class="mt-4 border-top">
+       
+    </footer>
+	
+</div>
+</body>
+</html>
